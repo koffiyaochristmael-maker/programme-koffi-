@@ -83,6 +83,9 @@ button.btn.load::after{content:"";display:inline-block;width:13px;height:13px;ma
 @keyframes spin{to{rotate:360deg}}
 .done{margin-top:20px;background:#fff;border-left:4px solid var(--blue);border-radius:10px;padding:14px 16px;font-size:.93rem}
 .done .btn{margin-top:12px}
+.idea.sent .f,.idea.sent>button.btn{display:none}
+.idea.sent .done{margin-top:0;border-left:0;text-align:center;padding:28px 16px}
+.done h3{font-size:1.4rem;margin-bottom:6px}
 @media(max-width:800px){
   section{padding:56px 0}
   .cards,.two{grid-template-columns:1fr}
@@ -182,7 +185,7 @@ button.btn.load::after{content:"";display:inline-block;width:13px;height:13px;ma
         <p id="h" class="h"><span id="n">0</span>/400 caractères, 10 minimum</p>
         <p id="e" class="e" role="alert" hidden>Écris au moins 10 caractères pour que ton idée soit utile.</p></div>
       <button class="btn" type="submit">Je drop mon idée</button>
-      <div class="done" role="status" hidden><p>Merci, ton idée a bien été envoyée à l'équipe.</p></div>
+      <div class="done" role="status" hidden><h3>Merci !</h3><p>Ton idée a bien été envoyée à l'équipe. On la lira avec attention.</p><button type="button" class="btn again">Envoyer une autre idée</button></div>
     </form>
   </div>
 </section>
@@ -206,6 +209,7 @@ button.btn.load::after{content:"";display:inline-block;width:13px;height:13px;ma
   var FORM_URL="https://docs.google.com/forms/d/e/1FAIpQLScLAuhtZkHRnWs0Ws1YnoEfTEO9LQMrqc8ECHoV_8CsPrYHoA/formResponse";
   var ENTRY_IDEE="entry.142423458",ENTRY_CLASSE="entry.447621392";
   var msgErr=e.textContent;
+  f.querySelector(".again").addEventListener("click",function(){f.classList.remove("sent");d.hidden=true;f.querySelector("#cls").focus()});
   f.addEventListener("submit",function(ev){
     ev.preventDefault();
     var t=m.value.trim();
@@ -216,7 +220,7 @@ button.btn.load::after{content:"";display:inline-block;width:13px;height:13px;ma
     data.append(ENTRY_IDEE,t);
     if(c)data.append(ENTRY_CLASSE,c);
     fetch(FORM_URL,{method:"POST",mode:"no-cors",body:data})
-      .then(function(){d.hidden=false;m.value="";n.textContent="0";m.removeAttribute("aria-invalid");e.hidden=true})
+      .then(function(){d.hidden=false;f.classList.add("sent");m.value="";n.textContent="0";f.querySelector("#cls").value="";m.removeAttribute("aria-invalid");e.hidden=true;d.scrollIntoView({block:"nearest",behavior:"smooth"})})
       .catch(function(){e.textContent="Envoi impossible pour le moment. Vérifie ta connexion et réessaie.";e.hidden=false})
       .then(function(){b.disabled=false;b.classList.remove("load");b.textContent="Je drop mon idée"});
   });
