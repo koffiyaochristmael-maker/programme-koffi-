@@ -173,17 +173,16 @@ button.btn.load::after{content:"";display:inline-block;width:13px;height:13px;ma
 <section id="idees">
   <div class="wrap narrow">
     <h2>La boîte à idées</h2>
-    <p class="lead">Une idée, une remarque, un problème à régler ? Écris-le ici. Ton message est préparé sur cette page, puis tu l'envoies toi-même dans le groupe WhatsApp.</p>
+    <p class="lead">Une idée, une remarque, un problème à régler ? Écris-le ici. Ton idée est envoyée directement à l'équipe.</p>
     <form class="idea" novalidate>
-        <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLScLAuhtZkHRnWs0Ws1YnoEfTEO9LQMrqc8ECHoV_8CsPrYHoA/viewform" target="_blank" rel="noopener">Ouvrir la boîte à idées</a>
-      <div class="f"><label for="cls">Ta classe <span>(facultatif)</span></label>
-        <select id="cls"><option value="">Je préfère ne pas préciser</option><option>B1</option><option>B2</option><option>B3</option></select></div>
+      <div class="f"><label for="cls">Ta classe <span>(obligatoire)</span></label>
+        <select id="cls"><option value="">Choisis ta classe</option><option>B1</option><option>B2</option><option>B3</option></select></div>
       <div class="f"><label for="msg">Ton idée</label>
         <textarea id="msg" maxlength="400" required aria-describedby="h e"></textarea>
         <p id="h" class="h"><span id="n">0</span>/400 caractères, 10 minimum</p>
         <p id="e" class="e" role="alert" hidden>Écris au moins 10 caractères pour que ton idée soit utile.</p></div>
-      <button class="btn" type="submit">Préparer mon message</button>
-      <div class="done" role="status" hidden><p>Ton message est prêt. Envoie-le dans le groupe pour qu'il soit lu.</p><a class="btn" target="_blank" rel="noopener">Ouvrir WhatsApp</a></div>
+      <button class="btn" type="submit">Je drop mon idée</button>
+      <div class="done" role="status" hidden><p>Merci, ton idée a bien été envoyée à l'équipe.</p></div>
     </form>
   </div>
 </section>
@@ -199,20 +198,27 @@ button.btn.load::after{content:"";display:inline-block;width:13px;height:13px;ma
 <script>
 (function(){
   var f=document.querySelector(".idea"),m=f.querySelector("#msg"),e=f.querySelector("#e"),n=f.querySelector("#n"),d=f.querySelector(".done"),b=f.querySelector("button");
+  f.querySelector("#cls").addEventListener("change",function(){e.hidden=true});
   m.addEventListener("input",function(){
     n.textContent=m.value.length;d.hidden=true;
     if(m.value.trim().length>=10){e.hidden=true;m.removeAttribute("aria-invalid")}
   });
+  var FORM_URL="https://docs.google.com/forms/d/e/1FAIpQLScLAuhtZkHRnWs0Ws1YnoEfTEO9LQMrqc8ECHoV_8CsPrYHoA/formResponse";
+  var ENTRY_IDEE="entry.142423458",ENTRY_CLASSE="entry.447621392";
+  var msgErr=e.textContent;
   f.addEventListener("submit",function(ev){
     ev.preventDefault();
     var t=m.value.trim();
-    if(t.length<10){e.hidden=false;m.setAttribute("aria-invalid","true");m.focus();return}
-    b.disabled=true;b.classList.add("load");b.textContent="Préparation";
-    setTimeout(function(){
-      var c=f.querySelector("#cls").value;
-      d.querySelector("a").href="https://wa.me/?text="+encodeURIComponent("Idée pour le programme de Christ Mandimoua Koffi"+(c?" ("+c+")":"")+" : "+t);
-      d.hidden=false;b.disabled=false;b.classList.remove("load");b.textContent="Préparer un autre message";
-    },500);
+    if(t.length<10){e.textContent=msgErr;e.hidden=false;m.setAttribute("aria-invalid","true");m.focus();return}
+    if(!f.querySelector("#cls").value){e.textContent="Choisis ta classe.";e.hidden=false;f.querySelector("#cls").focus();return}
+    b.disabled=true;b.classList.add("load");b.textContent="Envoi";
+    var data=new URLSearchParams(),c=f.querySelector("#cls").value;
+    data.append(ENTRY_IDEE,t);
+    if(c)data.append(ENTRY_CLASSE,c);
+    fetch(FORM_URL,{method:"POST",mode:"no-cors",body:data})
+      .then(function(){d.hidden=false;m.value="";n.textContent="0";m.removeAttribute("aria-invalid");e.hidden=true})
+      .catch(function(){e.textContent="Envoi impossible pour le moment. Vérifie ta connexion et réessaie.";e.hidden=false})
+      .then(function(){b.disabled=false;b.classList.remove("load");b.textContent="Je drop mon idée"});
   });
 })();
 </script>
